@@ -6,7 +6,10 @@ function App() {
   const [message, setMessage] = useState(null);
 
   const handleFile = async (e) => {
-    const file = e.target.files[0];
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
     const formData = new FormData();
     formData.append('image', file);
 
@@ -44,7 +47,8 @@ function App() {
 
   return (
     <div>
-      <input type="file" onChange={handleUpload} />
+      <input type="file" onChange={handleFile} />
+      <button onClick={handleUpload}>Upload</button>
       <button onClick={handleGetAllList}>Get All File List</button>
       <button onClick={clearAll}>Clear</button>
       {message ? <p>{message}</p> : null}
