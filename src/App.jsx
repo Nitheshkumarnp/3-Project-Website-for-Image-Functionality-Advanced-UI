@@ -4,6 +4,7 @@ function App() {
   const [file, setFile] = useState(null);
   const [fileList, setFileList] = useState([]);
   const [message, setMessage] = useState(null);
+  const [searchFile,setSearchFile] = useState(null);
 
   const handleFile = async (e) => {
     setFile(e.target.files[0]);
@@ -11,7 +12,7 @@ function App() {
 
   const handleUpload = async () => {
     const formData = new FormData();
-    formData.append('uploadedFile', file);
+    formData.append('image', file);
 
     try {
       const response = await fetch('https://image-advanced-functionality-services.onrender.com/upload', {
@@ -41,6 +42,21 @@ function App() {
     setMessage(null);
   };
 
+  const handleInput = async (e) => {
+    setSearchFile(e.target.value);
+  };
+
+  const handleSearch = async () => {
+    try {
+      const url = 'https://image-advanced-functionality-services.onrender.com/file?file_name_with_extension=' + searchFile;
+      const response = await fetch(url);
+      const data = await response;
+      return data;
+    } catch (error) {
+      console.error('Get images error:', error);
+    }
+  };
+
   useEffect(() => {
     clearAll();
   }, []);
@@ -51,6 +67,8 @@ function App() {
       <button onClick={handleUpload}>Upload</button>
       <button onClick={handleGetAllList}>Get All File List</button>
       <button onClick={clearAll}>Clear</button>
+      <input type='text' placeholder='search file' onChange={handleInput}/>
+      <button onClick={handleSearch}>Search</button>
       {message ? <p>{message}</p> : null}
       {fileList.length > 0 ? fileList.map((file) => (
         <p>{file}</p>
