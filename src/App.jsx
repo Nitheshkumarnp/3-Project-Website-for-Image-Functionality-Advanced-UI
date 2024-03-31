@@ -11,7 +11,7 @@ function App() {
 
   const handleUpload = async () => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('uploadedFile', file);
 
     try {
       const response = await fetch('https://image-advanced-functionality-services.onrender.com/upload', {
