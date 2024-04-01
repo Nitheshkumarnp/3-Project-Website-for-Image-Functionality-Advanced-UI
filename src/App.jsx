@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function App() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState('');
   const [fileList, setFileList] = useState([]);
-  const [message, setMessage] = useState(null);
-  const [searchFile,setSearchFile] = useState(null);
+  const [message, setMessage] = useState('');
+  const [searchFile,setSearchFile] = useState('');
+  const [imageSrc, setImageSrc] = useState('');
+  const [fileSrc, setFileSrc] = useState('');
+  const fileInputRef = useRef(null);
 
   const handleFile = async (e) => {
     setFile(e.target.files[0]);
@@ -12,7 +15,7 @@ function App() {
 
   const handleUpload = async () => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('uploadedFile', file);
 
     try {
       const response = await fetch('https://image-advanced-functionality-services.onrender.com/upload', {
@@ -37,9 +40,13 @@ function App() {
   };
 
   const clearAll = async () => {
-    setFile(null);
+    setFile('');
     setFileList([]);
-    setMessage(null);
+    setMessage('');
+    setSearchFile('');
+    setImageSrc('');
+    setFileSrc('');
+    fileInputRef.current.value = '';
   };
 
   const handleInput = async (e) => {
@@ -50,8 +57,18 @@ function App() {
     try {
       const url = 'https://image-advanced-functionality-services.onrender.com/file?file_name_with_extension=' + searchFile;
       const response = await fetch(url);
-      const data = await response;
-      return data;
+      // const data = await response;
+      // return data;
+      const fileArray = searchFile.split('.');
+      const ext = fileArray[fileArray.length - 1];
+      if(ext == 'txt') {
+        const data = await response.text();
+        setFileSrc(data);
+      } else {
+        const blob = await response.blob();
+        const imageURL = URL.createObjectURL(blob);
+        setImageSrc(imageURL);
+      }
     } catch (error) {
       console.error('Get images error:', error);
     }
@@ -63,13 +80,15 @@ function App() {
 
   return (
     <div>
-      <input type="file" onChange={handleFile} />
+      <input type="file" ref={fileInputRef} onChange={handleFile} />
       <button onClick={handleUpload}>Upload</button>
       <button onClick={handleGetAllList}>Get All File List</button>
       <button onClick={clearAll}>Clear</button>
-      <input type='text' placeholder='search file' onChange={handleInput}/>
+      <input type='text' value={searchFile}  placeholder='search file' onChange={handleInput}/>
       <button onClick={handleSearch}>Search</button>
       {message ? <p>{message}</p> : null}
+      {imageSrc && <img src={imageSrc} alt="Image" />}
+      {fileSrc ? <div style={{ whiteSpace: 'pre-line' }}>{fileSrc}</div> : null}
       {fileList.length > 0 ? fileList.map((file) => (
         <p>{file}</p>
       )) : null}
